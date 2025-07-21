@@ -49,9 +49,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Mount static files (for serving frontend)
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
-
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
@@ -219,10 +216,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root endpoint to serve the frontend
+# Root endpoint to serve the frontend (FLAT STRUCTURE VERSION)
 @app.get("/")
 async def read_root():
-    return FileResponse('../frontend/dashboard.html')
+    """Serve the main dashboard HTML file - Single folder version"""
+    try:
+        import os
+        # Look for dashboard.html in the same directory as this script
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), 'dashboard.html'),  # Same directory
+            './dashboard.html',  # Current working directory
+            'dashboard.html',  # Relative path
+        ]
+        
+        for html_path in possible_paths:
+            if os.path.exists(html_path):
+                logger.info(f"Serving frontend from: {html_path}")
+                return FileResponse(html_path)
+        
+        # If no frontend file found, return API info
+        logger.warning("dashboard.html not found in current directory")
+        return {
+            "message": "NYC Violations Scraper API",
+            "status": "running",
+            "note": "dashboard.html not found in current directory",
+            "endpoints": {
+                "health": "/api/health",
+                "search": "/api/search-violations",
+                "docs": "/docs"
+            },
+            "instructions": "Place dashboard.html in the same directory as server.py"
+        }
+    except Exception as e:
+        logger.error(f"Error serving frontend: {e}")
+        return {
+            "message": "NYC Violations Scraper API",
+            "error": str(e),
+            "docs": "/docs"
+        }
 
 @app.on_event("startup")
 async def startup_event():
