@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.flat
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+      - DB_NAME=nyc_violations
+      - CAPTCHA_API_KEY=${CAPTCHA_API_KEY:-}
+      - DEBUG=True
+      - LOG_LEVEL=DEBUG
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app
+    command: uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=nyc_violations
+
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongodb:27017
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_data:
