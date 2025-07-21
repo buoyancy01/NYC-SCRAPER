@@ -2,12 +2,9 @@ services:
   - type: web
     name: nyc-violations-scraper
     env: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    dockerfilePath: ./Dockerfile.flat
     plan: starter
     region: oregon
-    buildCommand: docker build -t nyc-violations-scraper .
-    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: MONGO_URL
         sync: false  # Set this in Render dashboard
