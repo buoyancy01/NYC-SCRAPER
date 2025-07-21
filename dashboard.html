@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Parking Violations Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .search-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .violation-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+        
+        .violation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .violation-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .violation-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .violation-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .detail-value {
+            color: #333;
+            margin-top: 2px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .violation-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .violation-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NYC Parking Violations Dashboard</h1>
+            <p>Search for parking violations by license plate number</p>
+        </div>
+        
+        <div class="search-form">
+            <form id="violationForm">
+                <div class="form-group">
+                    <label for="licensePlate">License Plate Number</label>
+                    <input type="text" id="licensePlate" name="licensePlate" required 
+                           placeholder="Enter license plate number" maxlength="8">
+                </div>
+                
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <select id="state" name="state" required>
+                        <option value="">Select State</option>
+                        <option value="NY">New York (NY)</option>
+                        <option value="NJ">New Jersey (NJ)</option>
+                        <option value="CT">Connecticut (CT)</option>
+                        <option value="PA">Pennsylvania (PA)</option>
+                        <option value="FL">Florida (FL)</option>
+                        <option value="CA">California (CA)</option>
+                        <option value="TX">Texas (TX)</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">
+                    Search Violations
+                </button>
+            </form>
+        </div>
+        
+        <div id="results" class="results">
+            <div id="loading" class="loading" style="display: none;">
+                <p>Searching for violations... This may take a few moments.</p>
+            </div>
+            
+            <div id="error" class="error" style="display: none;"></div>
+            <div id="success" class="success" style="display: none;"></div>
+            
+            <div id="violationsList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api';
+        
+        document.getElementById('violationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const licensePlate = document.getElementById('licensePlate').value.trim();
+            const state = document.getElementById('state').value;
+            
+            if (!licensePlate || !state) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            await searchViolations(licensePlate, state);
+        });
+        
+        async function searchViolations(licensePlate, state) {
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            const violationsListDiv = document.getElementById('violationsList');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Show results section and loading
+            resultsDiv.style.display = 'block';
+            loadingDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            violationsListDiv.innerHTML = '';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Searching...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/search-violations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        license_plate: licensePlate,
+                        state: state
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.result && data.result.data && data.result.data.length > 0) {
+                        displayViolations(data.result.data);
+                        showSuccess(`Found ${data.result.data.length} violation(s) for ${licensePlate}`);
+                    } else {
+                        showSuccess(`No violations found for license plate ${licensePlate}`);
+                    }
+                } else {
+                    showError(data.detail || 'An error occurred while searching for violations');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Network error. Please try again.');
+            } finally {
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Search Violations';
+            }
+        }
+        
+        function displayViolations(violations) {
+            const violationsListDiv = document.getElementById('violationsList');
+            
+            violations.forEach(violation => {
+                const violationCard = document.createElement('div');
+                violationCard.className = 'violation-card';
+                
+                violationCard.innerHTML = `
+                    <div class="violation-header">
+                        <div class="violation-number">Violation #${violation.violation_number || 'N/A'}</div>
+                        <div class="violation-amount">$${violation.fine_amount || '0.00'}</div>
+                    </div>
+                    <div class="violation-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Issue Date</div>
+                            <div class="detail-value">${violation.issue_date || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Violation Code</div>
+                            <div class="detail-value">${violation.violation_code || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Payment Status</div>
+                            <div class="detail-value">${violation.payment_status || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Location</div>
+                            <div class="detail-value">${violation.location || 'N/A'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                violationsListDiv.appendChild(violationCard);
+            });
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            const resultsDiv = document.getElementById('results');
+            
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            successDiv.style.display = 'none';
+            resultsDiv.style.display = 'block';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            const errorDiv = document.getElementById('error');
+            
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
