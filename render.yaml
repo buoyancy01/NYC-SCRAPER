@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: nyc-violations-scraper
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    region: oregon
+    buildCommand: docker build -t nyc-violations-scraper .
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MONGO_URL
+        sync: false  # Set this in Render dashboard
+      - key: DB_NAME
+        value: nyc_violations
+      - key: CAPTCHA_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: DEBUG
+        value: false
+      - key: LOG_LEVEL
+        value: INFO
+      - key: HOST
+        value: 0.0.0.0
+    healthCheckPath: /api/health
+    autoDeploy: true
