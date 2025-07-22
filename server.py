@@ -18,7 +18,16 @@ from models import (
     StatusCheckCreate,
     ScrapingResultDB
 )
-from scraper import NYCViolationScraper
+# In server.py:
+from scraper import NYCViolationsScraperV2
+
+@app.post("/search-violations")
+async def search_violations(request: ViolationRequest):
+    api_key = os.getenv('TWOCAPTCHA_API_KEY')
+    scraper = NYCViolationsScraperV2(captcha_api_key=api_key)
+    result = await scraper.scrape_violations(request.license_plate, request.state)
+    return result
+
 from captcha_client import CaptchaClient
 
 # Set up logging
