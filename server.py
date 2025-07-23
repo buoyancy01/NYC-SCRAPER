@@ -20,14 +20,6 @@ from models import (
 )
 # In server.py:
 from scraper import NYCViolationsScraperV2
-
-@app.post("/search-violations")
-async def search_violations(request: ViolationRequest):
-    api_key = os.getenv('TWOCAPTCHA_API_KEY')
-    scraper = NYCViolationsScraperV2(captcha_api_key=api_key)
-    result = await scraper.scrape_violations(request.license_plate, request.state)
-    return result
-
 from captcha_client import CaptchaClient
 
 # Set up logging
@@ -45,7 +37,7 @@ if not captcha_api_key:
     logger.warning("CAPTCHA_API_KEY not found in environment variables")
 
 # Initialize scraper and CAPTCHA client
-scraper = NYCViolationScraper(captcha_api_key)
+scraper = NYCViolationsScraperV2(captcha_api_key)
 captcha_client = CaptchaClient(captcha_api_key)
 
 # In-memory storage for scraping status (in production, use Redis or database)
