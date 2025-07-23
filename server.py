@@ -99,7 +99,7 @@ async def search_violations(
         scraping_jobs[job_id].status = "in_progress"
         scraping_jobs[job_id].progress = 0.5
         
-        result = await scraper.scrape_violations(request)
+        result = await scraper.scrape_violations(request.license_plate, request.state)
         
         scraping_jobs[job_id].status = "completed"
         scraping_jobs[job_id].progress = 1.0
@@ -168,7 +168,7 @@ async def perform_scraping(job_id: str, request: ViolationSearchRequest):
         scraping_jobs[job_id].progress = 0.1
         
         # Perform scraping
-        result = await scraper.scrape_violations(request)
+        result = await scraper.scrape_violations(request.license_plate, request.state)
         
         # Update final status
         scraping_jobs[job_id].status = "completed"
