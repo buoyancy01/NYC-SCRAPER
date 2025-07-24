@@ -30,6 +30,7 @@ class ScrapingStatus(BaseModel):
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     result: Optional[ScrapingResult] = None
+    request_context: Optional[Dict[str, Any]] = None  # Store original request for PDF generation
 
 class ScrapingResultDB(BaseModel):
     """Database version with additional metadata"""
