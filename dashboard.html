@@ -3,181 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Parking Violations Dashboard</title>
+    <title>NYC Parking Violations Lookup</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background-color: #f5f5f5;
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-        
+
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
             padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
             text-align: center;
         }
-        
-        .search-form {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: #333;
         }
-        
-        input[type="text"], select {
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 40px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+            align-items: end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s;
         }
-        
-        input[type="text"]:focus, select:focus {
+
+        .form-group input:focus, .form-group select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .search-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
-            padding: 12px 30px;
             border: none;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s;
         }
-        
-        .btn:hover {
+
+        .search-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
-        
-        .btn:disabled {
-            opacity: 0.6;
+
+        .search-btn:disabled {
+            background: #9ca3af;
             cursor: not-allowed;
             transform: none;
         }
-        
-        .results {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: none;
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
         }
-        
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            padding: 40px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .results-info {
+            font-size: 1.2em;
+            color: #374151;
+        }
+
+        .results-info strong {
+            color: #1f2937;
+        }
+
+        .download-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .violations-grid {
+            display: grid;
+            gap: 20px;
+        }
+
         .violation-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            background: #fafafa;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s;
         }
-        
+
+        .violation-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
         .violation-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f3f4f6;
         }
-        
+
         .violation-number {
-            font-weight: bold;
-            color: #667eea;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #1f2937;
         }
-        
-        .violation-amount {
-            font-size: 18px;
-            font-weight: bold;
-            color: #e74c3c;
+
+        .violation-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
         }
-        
+
+        .status-paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-outstanding {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-unknown {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
         .violation-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
+            gap: 15px;
         }
-        
+
         .detail-item {
-            padding: 8px;
-            background: white;
-            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
         }
-        
+
         .detail-label {
+            font-size: 0.85em;
+            color: #6b7280;
             font-weight: 600;
-            color: #666;
-            font-size: 12px;
+            margin-bottom: 4px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
+
         .detail-value {
-            color: #333;
-            margin-top: 2px;
+            font-size: 1em;
+            color: #1f2937;
+            font-weight: 500;
         }
-        
-        .loading {
+
+        .amount {
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+
+        .amount.due {
+            color: #dc2626;
+        }
+
+        .amount.paid {
+            color: #059669;
+        }
+
+        .pdf-download {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .no-results {
             text-align: center;
-            padding: 40px;
+            padding: 60px 40px;
+            color: #6b7280;
         }
-        
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 5px;
+
+        .no-results .icon {
+            font-size: 4em;
             margin-bottom: 20px;
-            border: 1px solid #f5c6cb;
+            color: #d1d5db;
         }
-        
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border: 1px solid #c3e6cb;
+
+        .no-results h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #374151;
         }
-        
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #dc2626;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #059669;
+        }
+
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .violation-header {
+            .search-form {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
             }
-            
+
+            .results-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+
+            .download-btns {
+                justify-content: center;
+            }
+
             .violation-details {
                 grid-template-columns: 1fr;
             }
@@ -186,23 +346,29 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>NYC Parking Violations Dashboard</h1>
-            <p>Search for parking violations by license plate number</p>
+            <h1>🚗 NYC Parking Violations</h1>
+            <p>Complete violation lookup with instant results and PDF downloads</p>
         </div>
-        
-        <div class="search-form">
-            <form id="violationForm">
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <form class="search-form" id="searchForm">
                 <div class="form-group">
-                    <label for="licensePlate">License Plate Number</label>
-                    <input type="text" id="licensePlate" name="licensePlate" required 
-                           placeholder="Enter license plate number" maxlength="8">
+                    <label for="licensePlate">License Plate</label>
+                    <input 
+                        type="text" 
+                        id="licensePlate" 
+                        name="licensePlate" 
+                        placeholder="Enter plate number"
+                        required
+                        autocomplete="off"
+                    >
                 </div>
-                
                 <div class="form-group">
                     <label for="state">State</label>
                     <select id="state" name="state" required>
-                        <option value="">Select State</option>
                         <option value="NY">New York (NY)</option>
                         <option value="NJ">New Jersey (NJ)</option>
                         <option value="CT">Connecticut (CT)</option>
@@ -210,64 +376,292 @@
                         <option value="FL">Florida (FL)</option>
                         <option value="CA">California (CA)</option>
                         <option value="TX">Texas (TX)</option>
-                        <option value="other">Other</option>
+                        <option value="MA">Massachusetts (MA)</option>
+                        <option value="MD">Maryland (MD)</option>
+                        <option value="VA">Virginia (VA)</option>
                     </select>
                 </div>
-                
-                <button type="submit" class="btn" id="submitBtn">
-                    Search Violations
+                <button type="submit" class="search-btn" id="searchBtn">
+                    🔍 Search
                 </button>
             </form>
         </div>
-        
-        <div id="results" class="results">
-            <div id="loading" class="loading" style="display: none;">
-                <p>Searching for violations... This may take a few moments.</p>
-            </div>
-            
-            <div id="error" class="error" style="display: none;"></div>
-            <div id="success" class="success" style="display: none;"></div>
-            
-            <div id="violationsList"></div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Searching violations database...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <!-- Results will be inserted here -->
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = '/api';
+        // Configuration
+        const API_BASE_URL = window.location.origin; // Adjust if your API is on a different URL
         
-        document.getElementById('violationForm').addEventListener('submit', async function(e) {
+        // DOM Elements
+        const searchForm = document.getElementById('searchForm');
+        const searchBtn = document.getElementById('searchBtn');
+        const loading = document.getElementById('loading');
+        const resultsSection = document.getElementById('resultsSection');
+        const licensePlateInput = document.getElementById('licensePlate');
+        const stateSelect = document.getElementById('state');
+
+        // State
+        let currentResults = null;
+
+        // Event Listeners
+        searchForm.addEventListener('submit', handleSearch);
+        licensePlateInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Main search handler
+        async function handleSearch(e) {
             e.preventDefault();
             
-            const licensePlate = document.getElementById('licensePlate').value.trim();
-            const state = document.getElementById('state').value;
+            const licensePlate = licensePlateInput.value.trim();
+            const state = stateSelect.value;
             
-            if (!licensePlate || !state) {
-                showError('Please fill in all fields');
+            if (!licensePlate) {
+                showError('Please enter a license plate number');
                 return;
             }
-            
-            await searchViolations(licensePlate, state);
-        });
-        
-        async function searchViolations(licensePlate, state) {
-            const resultsDiv = document.getElementById('results');
-            const loadingDiv = document.getElementById('loading');
-            const errorDiv = document.getElementById('error');
-            const successDiv = document.getElementById('success');
-            const violationsListDiv = document.getElementById('violationsList');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            // Show results section and loading
-            resultsDiv.style.display = 'block';
-            loadingDiv.style.display = 'block';
-            errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
-            violationsListDiv.innerHTML = '';
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Searching...';
+
+            setLoading(true);
+            hideError();
             
             try {
-                const response = await fetch(`${API_BASE_URL}/search-violations`, {
+                const result = await searchViolations(licensePlate, state);
+                currentResults = result;
+                displayResults(result, licensePlate, state);
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Failed to search violations. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // API call to search violations
+        async function searchViolations(licensePlate, state) {
+            const response = await fetch(`${API_BASE_URL}/api/search-violations-enhanced`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    license_plate: licensePlate,
+                    state: state
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.result?.success) {
+                throw new Error(data.result?.error_message || 'Search failed');
+            }
+
+            return data;
+        }
+
+        // Display search results
+        function displayResults(result, licensePlate, state) {
+            const violations = result.result?.data || [];
+            const enhancedData = result.enhanced_data || {};
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+            if (violations.length === 0) {
+                resultsSection.innerHTML = createNoResultsHTML(licensePlate, state);
+                return;
+            }
+
+            resultsSection.innerHTML = createResultsHTML(violations, licensePlate, state, enhancedData, result.job_id);
+        }
+
+        // Create HTML for no results
+        function createNoResultsHTML(licensePlate, state) {
+            return `
+                <div class="no-results">
+                    <div class="icon">✅</div>
+                    <h3>Great News!</h3>
+                    <p>No parking violations found for <strong>${licensePlate}</strong> from <strong>${state}</strong></p>
+                    <p>This vehicle has a clean record in the NYC violations database.</p>
+                </div>
+            `;
+        }
+
+        // Create HTML for results with violations
+        function createResultsHTML(violations, licensePlate, state, enhancedData, jobId) {
+            const totalDue = violations.reduce((sum, v) => sum + (parseFloat(v.amount_due) || 0), 0);
+            const outstanding = violations.filter(v => parseFloat(v.amount_due) > 0).length;
+            
+            return `
+                <div class="results-header">
+                    <div class="results-info">
+                        <strong>${violations.length}</strong> violations found for 
+                        <strong>${licensePlate}</strong> (<strong>${state}</strong>)
+                        <br>
+                        <span style="color: #dc2626; font-weight: 600;">
+                            $${totalDue.toFixed(2)} total amount due
+                        </span>
+                        ${outstanding > 0 ? `<br><span style="color: #991b1b;">${outstanding} outstanding violations</span>` : ''}
+                    </div>
+                    <div class="download-btns">
+                        <button class="btn btn-primary" onclick="downloadPDF('${licensePlate}', '${state}')">
+                            📄 Download PDF Report
+                        </button>
+                        ${enhancedData.downloaded_pdfs > 0 ? `
+                            <button class="btn btn-secondary" onclick="downloadAllPDFs('${jobId}')">
+                                📎 Download All Tickets (${enhancedData.downloaded_pdfs})
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="violations-grid">
+                    ${violations.map(violation => createViolationCardHTML(violation)).join('')}
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 8px; font-size: 0.9em; color: #6b7280;">
+                    <strong>Data Quality:</strong> ${enhancedData.api_data_quality ? '100% complete data' : 'Complete violation information'} • 
+                    <strong>Processing Time:</strong> ${enhancedData.processing_time ? enhancedData.processing_time.toFixed(2) + 's' : 'Fast'} • 
+                    <strong>Source:</strong> ${(enhancedData.data_sources || ['NYC API']).join(', ')}
+                </div>
+            `;
+        }
+
+        // Create HTML for individual violation card
+        function createViolationCardHTML(violation) {
+            const status = violation.status || 'UNKNOWN';
+            const statusClass = getStatusClass(status);
+            const amountDue = parseFloat(violation.amount_due) || 0;
+            const fineAmount = parseFloat(violation.fine_amount) || 0;
+            
+            return `
+                <div class="violation-card">
+                    <div class="violation-header">
+                        <div class="violation-number">
+                            Summons #${violation.summons_number || 'N/A'}
+                        </div>
+                        <div class="violation-status ${statusClass}">
+                            ${status}
+                        </div>
+                    </div>
+                    
+                    <div class="violation-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Issue Date</span>
+                            <span class="detail-value">${formatDate(violation.issue_date)}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Violation</span>
+                            <span class="detail-value">${violation.violation || violation.violation_code || 'Not specified'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Location</span>
+                            <span class="detail-value">${violation.location || 'NYC'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Issuing Agency</span>
+                            <span class="detail-value">${violation.agency || 'NYC'}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Fine Amount</span>
+                            <span class="detail-value amount">${formatCurrency(fineAmount)}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Amount Due</span>
+                            <span class="detail-value amount ${amountDue > 0 ? 'due' : 'paid'}">${formatCurrency(amountDue)}</span>
+                        </div>
+                    </div>
+                    
+                    ${violation.pdf_url ? `
+                        <div class="pdf-download">
+                            <a href="${violation.pdf_url}" target="_blank" class="btn btn-secondary">
+                                📄 View Ticket Image
+                            </a>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Utility functions
+        function getStatusClass(status) {
+            const statusLower = status.toLowerCase();
+            if (statusLower.includes('paid')) return 'status-paid';
+            if (statusLower.includes('outstanding')) return 'status-outstanding';
+            return 'status-unknown';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Not specified';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch {
+                return dateString;
+            }
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        function setLoading(isLoading) {
+            loading.style.display = isLoading ? 'block' : 'none';
+            resultsSection.style.display = isLoading ? 'none' : resultsSection.style.display;
+            searchBtn.disabled = isLoading;
+            searchBtn.textContent = isLoading ? 'Searching...' : '🔍 Search';
+        }
+
+        function showError(message) {
+            hideError();
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            errorDiv.id = 'errorMessage';
+            
+            const searchSection = document.querySelector('.search-section');
+            searchSection.appendChild(errorDiv);
+            
+            setTimeout(hideError, 5000);
+        }
+
+        function hideError() {
+            const errorMsg = document.getElementById('errorMessage');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+
+        // Download functions
+        async function downloadPDF(licensePlate, state) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/generate-pdf-enhanced`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -277,84 +671,64 @@
                         state: state
                     })
                 });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    if (data.result && data.result.data && data.result.data.length > 0) {
-                        displayViolations(data.result.data);
-                        showSuccess(`Found ${data.result.data.length} violation(s) for ${licensePlate}`);
-                    } else {
-                        showSuccess(`No violations found for license plate ${licensePlate}`);
-                    }
-                } else {
-                    showError(data.detail || 'An error occurred while searching for violations');
-                }
+
+                if (!response.ok) throw new Error('PDF generation failed');
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `violations_${licensePlate}_${state}_${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
             } catch (error) {
-                console.error('Error:', error);
-                showError('Network error. Please try again.');
-            } finally {
-                loadingDiv.style.display = 'none';
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Search Violations';
+                console.error('PDF download error:', error);
+                showError('Failed to generate PDF report');
             }
         }
-        
-        function displayViolations(violations) {
-            const violationsListDiv = document.getElementById('violationsList');
-            
-            violations.forEach(violation => {
-                const violationCard = document.createElement('div');
-                violationCard.className = 'violation-card';
+
+        async function downloadAllPDFs(jobId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/download-pdfs/${jobId}`);
                 
-                violationCard.innerHTML = `
-                    <div class="violation-header">
-                        <div class="violation-number">Violation #${violation.violation_number || 'N/A'}</div>
-                        <div class="violation-amount">$${violation.fine_amount || '0.00'}</div>
-                    </div>
-                    <div class="violation-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Issue Date</div>
-                            <div class="detail-value">${violation.issue_date || 'N/A'}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Violation Code</div>
-                            <div class="detail-value">${violation.violation_code || 'N/A'}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Payment Status</div>
-                            <div class="detail-value">${violation.payment_status || 'N/A'}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Location</div>
-                            <div class="detail-value">${violation.location || 'N/A'}</div>
-                        </div>
-                    </div>
-                `;
-                
-                violationsListDiv.appendChild(violationCard);
-            });
+                if (!response.ok) throw new Error('PDF download failed');
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `all_tickets_${jobId}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('All PDFs download error:', error);
+                showError('Failed to download ticket images');
+            }
         }
-        
-        function showError(message) {
-            const errorDiv = document.getElementById('error');
-            const successDiv = document.getElementById('success');
-            const resultsDiv = document.getElementById('results');
+
+        // Initialize with demo data or handle URL parameters
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-fill demo data if URL parameters exist
+            const urlParams = new URLSearchParams(window.location.search);
+            const plate = urlParams.get('plate');
+            const state = urlParams.get('state');
             
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            successDiv.style.display = 'none';
-            resultsDiv.style.display = 'block';
-        }
-        
-        function showSuccess(message) {
-            const successDiv = document.getElementById('success');
-            const errorDiv = document.getElementById('error');
+            if (plate) {
+                licensePlateInput.value = plate.toUpperCase();
+            }
+            if (state) {
+                stateSelect.value = state.toUpperCase();
+            }
             
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            errorDiv.style.display = 'none';
-        }
+            // Auto-search if both parameters exist
+            if (plate && state) {
+                handleSearch(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>
